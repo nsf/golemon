@@ -296,7 +296,7 @@ func (p *yyParser) Dispose() {
 func (p *yyParser) findShiftAction(lookahead YYCODETYPE) YYACTIONTYPE {
 	stateno := p.stack[p.idx].stateno
 
-	if stateno > YY_SHIFT_MAX {
+	if stateno > YY_SHIFT_COUNT {
 		return yy_default[stateno]
 	}
 
@@ -311,16 +311,18 @@ func (p *yyParser) findShiftAction(lookahead YYCODETYPE) YYACTIONTYPE {
 		return yy_action[i]
 	}
 	if lookahead > 0 {
-		fallback := yyFallback[lookahead]
-		if int(lookahead) < len(yyFallback) && fallback != 0 {
-			// TODO(nsf): add 'if debug' for dead code elimination
-			if p.traceWriter != nil {
-				fmt.Fprintf(p.traceWriter, "%sFALLBACK %s => %s\n",
-					    p.tracePrompt,
-					    yyTokenName[lookahead],
-					    yyTokenName[fallback])
+		if int(lookahead) < len(yyFallback) {
+			fallback := yyFallback[lookahead]
+			if fallback != 0 {
+				// TODO(nsf): add 'if debug' for dead code elimination
+				if p.traceWriter != nil {
+					fmt.Fprintf(p.traceWriter, "%sFALLBACK %s => %s\n",
+						    p.tracePrompt,
+						    yyTokenName[lookahead],
+						    yyTokenName[fallback])
+				}
+				return p.findShiftAction(fallback)
 			}
-			return p.findShiftAction(fallback)
 		}
 		if YYWILDCARD >= 0 {
 			var wildcard int = YYWILDCARD
