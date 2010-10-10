@@ -3307,6 +3307,11 @@ PRIVATE void translate_code(struct lemon *lemp, struct rule *rp){
 
   append_str(0,0,0,0);
 
+  /* workaround for absence of unions, we're making a temp variable of the
+   * right type, then we use it and then box it back to the interface{} again
+   */
+  append_str("__LHS := yy%d_or_default(yygotominor); ",0,rp->lhs->dtnum,0);
+
   /* This const cast is wrong but harmless, if we're careful. */
   for(cp=(char *)rp->code; *cp; cp++){
     if( isalpha(*cp) && (cp==rp->code || (!isalnum(cp[-1]) && cp[-1]!='_')) ){
@@ -3315,7 +3320,7 @@ PRIVATE void translate_code(struct lemon *lemp, struct rule *rp){
       saved = *xp;
       *xp = 0;
       if( rp->lhsalias && strcmp(cp,rp->lhsalias)==0 ){
-        append_str("yygotominor",0,0,0);
+        append_str("__LHS",0,0,0);
         cp = xp;
         lhsused = 1;
       }else{
@@ -3345,6 +3350,7 @@ PRIVATE void translate_code(struct lemon *lemp, struct rule *rp){
     }
     append_str(cp, 1, 0, 0);
   } /* End loop */
+  append_str("; yygotominor = __LHS; ",0,rp->lhs->dtnum,0);
 
   /* Check to make sure the LHS has been used */
   if( rp->lhsalias && !lhsused ){
@@ -3506,9 +3512,18 @@ void print_stack_union(
   /* ok, let's cheat here, instead of defining a union, we define functions for
    * converting from interface{} type to the real type */
   fprintf(out,"func yy0(what interface{}) %sTOKENTYPE { return what.(%sTOKENTYPE) }\n", name, name); lineno++;
+  /* in case if the type is some kind of struct, default initialize it! */
+  fprintf(out,"func yy0_or_default(what interface{}) %sTOKENTYPE { "
+	    "if what != nil { return what.(%sTOKENTYPE) }; "
+	    "var def %sTOKENTYPE; return def "
+	    "}\n",name,name,name); lineno++;
   for(i=0; i<arraysize; i++){
     if( types[i]==0 ) continue;
     fprintf(out,"func yy%d(what interface{}) %s { return what.(%s) }\n",i+1,types[i],types[i]); lineno++;
+    fprintf(out,"func yy%d_or_default(what interface{}) %s { "
+	    "if what != nil { return what.(%s) }; "
+	    "var def %s; return def "
+	    "}\n",i+1,types[i],types[i],types[i]); lineno++;
     free(types[i]);
   }
   if( lemp->errsym->useCnt ){
