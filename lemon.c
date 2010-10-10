@@ -2363,7 +2363,7 @@ to follow the previous rule.");
           for(z=psp->filename, nBack=0; *z; z++){
             if( *z=='\\' ) nBack++;
           }
-          sprintf(zLine, "//line %d ", psp->tokenlineno);
+          sprintf(zLine, "//line :%d", psp->tokenlineno);
           nLine = lemonStrlen(zLine);
           n += nLine + lemonStrlen(psp->filename) + nBack;
         }
@@ -2373,16 +2373,18 @@ to follow the previous rule.");
           if( nOld && zBuf[-1]!='\n' ){
             *(zBuf++) = '\n';
           }
-          memcpy(zBuf, zLine, nLine);
-          zBuf += nLine;
-          *(zBuf++) = '"';
+          memcpy(zBuf, zLine, 7); // copy '//line ' part
+          zBuf += 7;
+          //*(zBuf++) = '"';
           for(z=psp->filename; *z; z++){
             if( *z=='\\' ){
               *(zBuf++) = '\\';
             }
             *(zBuf++) = *z;
           }
-          *(zBuf++) = '"';
+          //*(zBuf++) = '"';
+	  memcpy(zBuf, zLine+7, nLine-7); // copy ':%d' part
+	  zBuf += nLine-7;
           *(zBuf++) = '\n';
         }
         if( psp->decllinenoslot && psp->decllinenoslot[0]==0 ){
@@ -3147,13 +3149,13 @@ PRIVATE FILE *tplt_open(struct lemon *lemp)
 /* Print a #line directive line to the output file. */
 PRIVATE void tplt_linedir(FILE *out, int lineno, char *filename)
 {
-  fprintf(out,"//line %d \"",lineno);
+  fprintf(out,"//line ");
   while( *filename ){
     if( *filename == '\\' ) putc('\\',out);
     putc(*filename,out);
     filename++;
   }
-  fprintf(out,"\"\n");
+  fprintf(out,":%d\n", lineno);
 }
 
 /* Print a string to the file and keep the linenumber up to date */
@@ -3170,7 +3172,7 @@ PRIVATE void tplt_print(FILE *out, struct lemon *lemp, char *str, int *lineno)
     (*lineno)++;
   }
   if (!lemp->nolinenosflag) {
-    (*lineno)++; tplt_linedir(out,*lineno,lemp->outname); 
+    /*(*lineno)++; tplt_linedir(out,*lineno,lemp->outname); */
   }
   return;
 }
@@ -3213,7 +3215,9 @@ void emit_destructor_code(
  }
  fprintf(out,"\n"); (*lineno)++;
  if (!lemp->nolinenosflag) { 
+	 /*
    (*lineno)++; tplt_linedir(out,*lineno,lemp->outname); 
+   */
  }
  fprintf(out,"}\n"); (*lineno)++;
  return;
@@ -3403,7 +3407,7 @@ PRIVATE void emit_code(
      if( *cp=='\n' ) (*lineno)++;
    } /* End loop */
    fprintf(out,"}\n"); (*lineno)++;
-   if (!lemp->nolinenosflag) { (*lineno)++; tplt_linedir(out,*lineno,lemp->outname); }
+   if (!lemp->nolinenosflag) { /*(*lineno)++; tplt_linedir(out,*lineno,lemp->outname);*/ }
  } /* End if( rp->code ) */
 
  return;

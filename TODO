@@ -3,7 +3,7 @@
  - Implement %extra_argument stuff.
  - Implement proper support for %name.
  - Investigate different options and how they interact with Go port (like -m option).
- - Add support for Go's //line filename.y:<lineno> stuff
+ + Add support for Go's //line filename.y:<lineno> stuff
  - Clean up type mess
  - Optimize
  - Good to Go!
