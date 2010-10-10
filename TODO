@@ -1,0 +1,9 @@
+ - Remove %stack_overflow stuff. The stack in Go lemon is dynamic and it never overflows.
+ - Remove %destructor stuff. In a GC language it's a useless feature.
+ - Implement %extra_argument stuff.
+ - Implement proper support for %name.
+ - Investigate different options and how they interact with Go port (like -m option).
+ - Add support for Go's //line filename.y:<lineno> stuff
+ - Clean up type mess
+ - Optimize
+ - Good to Go!
