@@ -3171,9 +3171,6 @@ PRIVATE void tplt_print(FILE *out, struct lemon *lemp, char *str, int *lineno)
     putc('\n',out);
     (*lineno)++;
   }
-  if (!lemp->nolinenosflag) {
-    /*(*lineno)++; tplt_linedir(out,*lineno,lemp->outname); */
-  }
   return;
 }
 
@@ -3214,11 +3211,6 @@ void emit_destructor_code(
    fputc(*cp,out);
  }
  fprintf(out,"\n"); (*lineno)++;
- if (!lemp->nolinenosflag) { 
-	 /*
-   (*lineno)++; tplt_linedir(out,*lineno,lemp->outname); 
-   */
- }
  fprintf(out,"}\n"); (*lineno)++;
  return;
 }
@@ -3407,7 +3399,6 @@ PRIVATE void emit_code(
      if( *cp=='\n' ) (*lineno)++;
    } /* End loop */
    fprintf(out,"}\n"); (*lineno)++;
-   if (!lemp->nolinenosflag) { /*(*lineno)++; tplt_linedir(out,*lineno,lemp->outname);*/ }
  } /* End if( rp->code ) */
 
  return;
