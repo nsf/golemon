@@ -3,6 +3,7 @@ Differences with C version:
  - Parser stack is always dynamic (grows automatically).
  - Debug is always enabled, possibly 'const debug' will be added in future for
    dead code elimination.
- - Instead of a union for YYMINORTYPE, I use interface{}
- - Default type for a token minor is interface{} (TODO(nsf): why? maybe change to int)
- - YYTRACKMAXSTACKDEPTH is not implemented and removed from the source code
+ - Instead of a union for YYMINORTYPE, I use interface{}.
+ - Default type for a token minor is interface{} (TODO(nsf): why? maybe change to int).
+ - YYTRACKMAXSTACKDEPTH is not implemented and removed from the source code.
+ - Custom Parser arguments are not implemented (yet).
