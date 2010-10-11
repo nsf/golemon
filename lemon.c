@@ -3932,7 +3932,6 @@ void ReportTable(
     for(i=0; i<lemp->nsymbol && lemp->symbols[i]->type!=TERMINAL; i++);
     if( i<lemp->nsymbol ){
       emit_destructor_code(out,lemp->symbols[i],lemp,&lineno);
-      fprintf(out,"      break;\n"); lineno++;
     }
   }
   if( lemp->vardest ){
@@ -3952,7 +3951,6 @@ void ReportTable(
     if( dflt_sp!=0 ){
       emit_destructor_code(out,dflt_sp,lemp,&lineno);
     }
-    fprintf(out,"      break;\n"); lineno++;
   }
   for(i=0; i<lemp->nsymbol; i++){
     struct symbol *sp = lemp->symbols[i];
@@ -3972,7 +3970,6 @@ void ReportTable(
     }
 
     emit_destructor_code(out,lemp->symbols[i],lemp,&lineno);
-    fprintf(out,"      break;\n"); lineno++;
   }
   tplt_xfer(lemp->name,in,out,&lineno);
 
@@ -4011,7 +4008,6 @@ void ReportTable(
       }
     }
     emit_code(out,rp,lemp,&lineno);
-    fprintf(out,"        break;\n"); lineno++;
     rp->code = 0;
   }
   /* Finally, output the default: rule.  We choose as the default: all
@@ -4024,7 +4020,6 @@ void ReportTable(
     writeRuleText(out, rp);
     fprintf(out, " */ yytestcase(yyruleno==%d);\n", rp->index); lineno++;
   }
-  fprintf(out,"        break;\n"); lineno++;
   tplt_xfer(lemp->name,in,out,&lineno);
 
   /* Generate code which executes if a parse fails */
