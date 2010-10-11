@@ -429,19 +429,24 @@ var yyRuleInfo = []ruleInfoEntry{
 /*
 ** Perform a reduce action and the shift that must immediately
 ** follow the reduce.
+** Use 'yyp' instead of 'p', because the namespace of this function is visible
+** in rule actions, we don't want clashes.
 */
-func (p *yyParser) reduce(ruleno YYACTIONTYPE) {
+func (yyp *yyParser) reduce(ruleno YYACTIONTYPE) {
 	var yygoto YYCODETYPE
 	var yyact YYACTIONTYPE
 	var yygotominor YYMINORTYPE
 	var yysize int
-	//yymsp := &p.stack[p.idx]
 
 	// TODO(nsf): add 'if debug' for dead code elimination
-	if p.traceWriter != nil && ruleno >= 0 && int(ruleno) < len(yyRuleName) {
-		fmt.Fprintf(p.traceWriter, "%sReduce [%s].\n",
-			    p.tracePrompt, yyRuleName[ruleno])
+	if yyp.traceWriter != nil && ruleno >= 0 && int(ruleno) < len(yyRuleName) {
+		fmt.Fprintf(yyp.traceWriter, "%sReduce [%s].\n",
+			    yyp.tracePrompt, yyRuleName[ruleno])
 	}
+
+	// these will be used in rule actions
+	yystack := yyp.stack
+	yyidx := yyp.idx
 
 	switch ruleno {
 %%
@@ -449,25 +454,25 @@ func (p *yyParser) reduce(ruleno YYACTIONTYPE) {
 
 	yygoto = yyRuleInfo[ruleno].lhs
 	yysize = int(yyRuleInfo[ruleno].nrhs)
-	p.idx -= yysize
-	yyact = p.findReduceAction(p.stack[p.idx].stateno, yygoto)
+	yyp.idx -= yysize
+	yyact = yyp.findReduceAction(yyp.stack[yyp.idx].stateno, yygoto)
 	if yyact < YYNSTATE {
 		// TODO(nsf): add 'if debug' for dead code elimination
-		p.shift(yyact, yygoto, &yygotominor)
+		yyp.shift(yyact, yygoto, &yygotominor)
 		/* TODO(nsf): enable this 'if !debug'
 		if yysize > 0 {
-			p.idx++
-			yymsp = &p.stack[p.idx]
+			yyp.idx++
+			yymsp = &yyp.stack[yyp.idx]
 			yymsp.stateno = yyact
 			yymsp.major = yygoto
 			yymsp.minor = yygotominor
 		} else {
-			p.shift(yyact, yygoto, &yygotominor)
+			yyp.shift(yyact, yygoto, &yygotominor)
 		}
 		*/
 	} else {
 		// assert(yyact == YYNSTATE + YYNRULE + 1)
-		p.accept()
+		yyp.accept()
 	}
 }
 

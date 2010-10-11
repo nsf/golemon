@@ -3325,7 +3325,7 @@ PRIVATE void translate_code(struct lemon *lemp, struct rule *rp){
             if( cp!=rp->code && cp[-1]=='@' ){
               /* If the argument is of the form @X then substituted
               ** the token number of X, not the value of X */
-              append_str("p.stack[p.idx+(%d)].major",-1,i-rp->nrhs+1,0);
+              append_str("yystack[yyidx+(%d)].major",-1,i-rp->nrhs+1,0);
             }else{
               struct symbol *sp = rp->rhs[i];
               int dtnum;
@@ -3334,7 +3334,7 @@ PRIVATE void translate_code(struct lemon *lemp, struct rule *rp){
               }else{
                 dtnum = sp->dtnum;
               }
-              append_str("yy%d(p.stack[p.idx+(%d)].minor)",0,dtnum,i-rp->nrhs+1);
+              append_str("yy%d(yystack[yyidx+(%d)].minor)",0,dtnum,i-rp->nrhs+1);
             }
             cp = xp;
             used[i] = 1;
