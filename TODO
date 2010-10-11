@@ -2,6 +2,8 @@
  - Remove %destructor stuff. In a GC language it's a useless feature.
  - Implement %extra_argument stuff.
  - Implement proper support for %name.
+ - Rename all the YY constants and types and variables to lower-case-based
+   names, in case if user will want to hide the parser in a separate package.
  - Investigate different options and how they interact with Go port (like -m option).
  + Add support for Go's //line filename.y:<lineno> stuff
  - Clean up type mess
