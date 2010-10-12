@@ -1,0 +1,41 @@
+From the golang-nuts mailing list (with few modifications):
+
+--== intro ==--
+
+Hi. I just want to announce a simple port of the lemon parser generator
+to the Go programming language.
+
+Shortly: Lemon is a LALR(1) parser generator, similar to yacc, but is
+much simpler. Also it has few neat features, like:
+ - It is thread-safe and re-entrant
+ - Tokenizer calls the parser, instead of parser calls tokenizer
+   (the opposite of yacc/bison)
+ - Uses no global variables, allows to run multiple parsers
+   simultaneously
+ - Auto-generation of token symbol constants (yacc/bison requires a
+   list)
+ - No need to count grammar symbols, they can be named (nice names
+   instead of $1 $2 $3)
+ - etc..
+
+The Lemon is developed as a part of the sqlite project. The generator code is
+quite horrible, but it works and I believe it is very solid. Of course it has
+few drawbacks, but.. :)
+
+Lemon homepage:
+http://www.hwaci.com/sw/lemon
+
+--== golemon specific info ==--
+
+I don't know whether I will support the golemon or not, but at least if someone
+likes lemon (like me), he/she has a decent (I hope so) base for his/her
+experiments now.
+
+I've successfully compiled and executed the very beginning of this
+tutorial:
+http://freshmeat.net/articles/lemon-parser-generator-tutorial
+
+See also 'examples' directory.
+
+Hopefully, I will have enough enthusiasm to fix some of the obvious
+issues (see TODO).
