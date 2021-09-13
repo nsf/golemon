@@ -3622,6 +3622,81 @@ static void writeRuleText(FILE *out, struct rule *rp){
   }
 }
 
+void replaceDefines(
+  struct lemon *lemp
+){
+	FILE* out, * in;
+	int start,end,len;
+	char c;
+	char identifier[6];
+  char* vname;
+
+  in = file_open(lemp, ".go.tmp", "rb");
+  if (in == 0) {
+    return;
+  }
+  out = file_open(lemp, ".go", "wb");
+  if (out == 0) {
+    fclose(in);
+    return;
+  }
+
+  if (lemp->arg && lemp->arg[0]) {
+    // trim spaces
+    len = lemonStrlen(lemp->arg);
+    start = 0;
+    while (start < len && isspace(lemp->arg[start])) start++;
+
+    end = start+1;
+    while (end < len && !isspace(lemp->arg[end])) end++;
+
+    // allocate string for variable name and set its value
+    vname = (char*)malloc(end-start+1);
+    memcpy(vname, &lemp->arg[start], end-start);
+    vname[end-start] = 0;
+  }
+  else {
+    vname = NULL;
+  }
+
+  while (fread(&c, sizeof(c), 1, in) == 1) {
+    if (c == '@') {
+      // read identifier made of 5 characters
+      fread(&identifier, 1, 5, in);
+      identifier[5] = 0;
+
+      if (vname != NULL) {
+        if (strcmp(identifier, "SDECL") == 0) {
+          fprintf(out, "%s", lemp->arg);
+        }
+        else if (strcmp(identifier, "PDECL") == 0) {
+          fprintf(out, ",%s", lemp->arg);
+        }
+        else if (strcmp(identifier, "FETCH") == 0) {
+          fprintf(out, "%s := p.%s", vname, vname);
+        }
+        else if (strcmp(identifier, "FETC2") == 0) {
+          fprintf(out, "%s := yyp.%s", vname, vname);
+        }
+        else if (strcmp(identifier, "STORE") == 0) {
+          fprintf(out, "p.%s = %s", vname, vname);
+        }
+      }
+    }
+    else {
+      fwrite(&c, sizeof(c), 1, out);
+    }
+  }
+
+  if (vname != NULL) {
+    free(vname);
+  }
+
+  fclose(out);
+	fclose(in);
+
+  remove(file_makename(lemp, ".go.tmp"));
+}
 
 /* Generate C source code for the parser */
 void ReportTable(
@@ -3643,7 +3718,7 @@ void ReportTable(
 
   in = tplt_open(lemp);
   if( in==0 ) return;
-  out = file_open(lemp,".go","wb");
+  out = file_open(lemp,".go.tmp","wb");
   if( out==0 ){
     fclose(in);
     return;
@@ -3681,26 +3756,7 @@ void ReportTable(
   fprintf(out,"const YYWILDCARD = %d\n",
 	  lemp->wildcard ? lemp->wildcard->index : -1); lineno++;
   print_stack_union(out,lemp,&lineno,mhflag);
-  name = lemp->name ? lemp->name : "Parse";
-  /*
-  if( lemp->arg && lemp->arg[0] ){
-    int i;
-    i = lemonStrlen(lemp->arg);
-    while( i>=1 && isspace(lemp->arg[i-1]) ) i--;
-    while( i>=1 && (isalnum(lemp->arg[i-1]) || lemp->arg[i-1]=='_') ) i--;
-    fprintf(out,"#define %sARG_SDECL %s;\n",name,lemp->arg);  lineno++;
-    fprintf(out,"#define %sARG_PDECL ,%s\n",name,lemp->arg);  lineno++;
-    fprintf(out,"#define %sARG_FETCH %s = yypParser->%s\n",
-                 name,lemp->arg,&lemp->arg[i]);  lineno++;
-    fprintf(out,"#define %sARG_STORE yypParser->%s = %s\n",
-                 name,&lemp->arg[i],&lemp->arg[i]);  lineno++;
-  }else{
-    fprintf(out,"#define %sARG_SDECL\n",name);  lineno++;
-    fprintf(out,"#define %sARG_PDECL\n",name);  lineno++;
-    fprintf(out,"#define %sARG_FETCH\n",name); lineno++;
-    fprintf(out,"#define %sARG_STORE\n",name); lineno++;
-  }
-  */
+
   fprintf(out,"const YYNSTATE = %d\n",lemp->nstate);  lineno++;
   fprintf(out,"const YYNRULE = %d\n",lemp->nrule);  lineno++;
   fprintf(out,"const YYERRORSYMBOL = %d\n",
@@ -4039,6 +4095,9 @@ void ReportTable(
 
   fclose(in);
   fclose(out);
+
+  replaceDefines(lemp);
+
   return;
 }
 
