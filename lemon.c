@@ -3666,13 +3666,13 @@ void replaceDefines(
       identifier[5] = 0;
 
       if (vname != NULL) {
-				if (strcmp(identifier, "SDECL") == 0) {
-					fprintf(out, "%s", lemp->arg);
-				}
-				else if (strcmp(identifier, "PDECL") == 0) {
-					fprintf(out, ",%s", lemp->arg);
-				}
-				else if (strcmp(identifier, "FETCH") == 0) {
+        if (strcmp(identifier, "SDECL") == 0) {
+          fprintf(out, "%s", lemp->arg);
+        }
+		  else if (strcmp(identifier, "PDECL") == 0) {
+          fprintf(out, ",%s", lemp->arg);
+        }
+        else if (strcmp(identifier, "FETCH") == 0) {
           fprintf(out, "%s := p.%s", vname, vname);
         }
         else if (strcmp(identifier, "FETC2") == 0) {
