@@ -154,6 +154,8 @@ type yyParser struct {
 
 	traceWriter io.Writer
 	tracePrompt string
+
+	@SDECL
 }
 
 /*
@@ -235,10 +237,11 @@ func NewParser() *yyParser {
 ** the value.
 */
 func (p *yyParser) destructor(major YYCODETYPE, minor *YYMINORTYPE) {
-	// TODO(nsf): ParseARG_FETCH
+	@FETCH
 	switch major {
 %%
 	}
+	@STORE
 }
 
 /*
@@ -367,7 +370,7 @@ func (p *yyParser) findReduceAction(stateno YYACTIONTYPE, lookahead YYCODETYPE) 
 ** TODO(nsf): We have a dynamic stack, it can't overflow? remove this method?
 */
 func (p *yyParser) stackOverflow(pminor *YYMINORTYPE) {
-	// TODO(nsf): ParseARG_FETCH
+	@FETCH
 	p.idx--
 	// TODO(nsf): add 'if debug' for dead code elimination
 	if p.traceWriter != nil {
@@ -378,7 +381,7 @@ func (p *yyParser) stackOverflow(pminor *YYMINORTYPE) {
 		p.popParserStack()
 	}
 %%
-	// TODO(nsf): ParseARG_STORE
+	@STORE
 }
 
 /*
@@ -438,6 +441,8 @@ func (yyp *yyParser) reduce(ruleno YYACTIONTYPE) {
 	var yygotominor YYMINORTYPE
 	var yysize int
 
+	@FETC2
+
 	// TODO(nsf): add 'if debug' for dead code elimination
 	if yyp.traceWriter != nil && ruleno >= 0 && int(ruleno) < len(yyRuleName) {
 		fmt.Fprintf(yyp.traceWriter, "%sReduce [%s].\n",
@@ -480,7 +485,7 @@ func (yyp *yyParser) reduce(ruleno YYACTIONTYPE) {
 ** The following code executes when the parse fails
 */
 func (p *yyParser) parseFailed() {
-	// TODO(nsf): ParseARG_FETCH
+	@FETCH
 
 	// TODO(nsf): add 'if debug' for dead code elimination
 	if p.traceWriter != nil {
@@ -491,25 +496,25 @@ func (p *yyParser) parseFailed() {
 		p.popParserStack()
 	}
 %%
-	// TODO(nsf): ParseARG_STORE
+	@STORE
 }
 
 /*
 ** The following code executes when a syntax error first occurs.
 */
 func (p *yyParser) syntaxError(major YYCODETYPE, minor YYMINORTYPE) {
-	// TODO(nsf): ParseARG_FETCH
+	@FETCH
 
 	// TODO(nsf): #define TOKEN (minor.yy0)
 %%
-	// TODO(nsf): ParseARG_STORE
+	@STORE
 }
 
 /*
 ** The following is executed when the parser accepts
 */
 func (p *yyParser) accept() {
-	// TODO(nsf): ParseARG_FETCH
+	@FETCH
 
 	// TODO(nsf): add 'if debug' for dead code elimination
 	if p.traceWriter != nil {
@@ -519,7 +524,7 @@ func (p *yyParser) accept() {
 		p.popParserStack()
 	}
 %%
-	// TODO(nsf): ParseARG_STORE
+	@STORE
 }
 
 /* The main parser program.
@@ -541,13 +546,15 @@ func (p *yyParser) accept() {
 ** Outputs:
 ** None.
 */
-func (p *yyParser) Parse(major YYCODETYPE, minor ParseTOKENTYPE, arg ...interface{}) {
+func (p *yyParser) Parse(major YYCODETYPE, minor ParseTOKENTYPE @PDECL) {
 	var (
 		minorunion YYMINORTYPE
 		act YYACTIONTYPE
 		endofinput bool
 		errorhit bool
 	)
+
+	@STORE
 
 	if p.idx < 0 {
 		p.idx = 0
