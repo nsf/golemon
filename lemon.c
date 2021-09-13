@@ -3669,7 +3669,7 @@ void replaceDefines(
         if (strcmp(identifier, "SDECL") == 0) {
           fprintf(out, "%s", lemp->arg);
         }
-		  else if (strcmp(identifier, "PDECL") == 0) {
+        else if (strcmp(identifier, "PDECL") == 0) {
           fprintf(out, ",%s", lemp->arg);
         }
         else if (strcmp(identifier, "FETCH") == 0) {
@@ -3678,8 +3678,7 @@ void replaceDefines(
         else if (strcmp(identifier, "FETC2") == 0) {
           fprintf(out, "%s := yyp.%s", vname, vname);
         }
-        else if (strcmp(identifier, "STORE") == 0)
-        {
+        else if (strcmp(identifier, "STORE") == 0) {
           fprintf(out, "p.%s = %s", vname, vname);
         }
       }
